@@ -25,7 +25,6 @@ public class GameRunnable implements Runnable {
 		Random random = new Random();
 		while (running) {
 			try {
-				System.out.println(defaultDelay - (controller.getGame().getLevel() * stepDelay));
 				Thread.sleep(defaultDelay - (controller.getGame().getLevel() * stepDelay));
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -46,6 +45,9 @@ public class GameRunnable implements Runnable {
 				public void run() {
 					controller.getGame().updateTime();
 					controller.getDashBoard().update();
+					if(!controller.getGame().checkEvents()) {
+						controller.endGame();
+					}
 					controller.getDrawPane().draw();
 				}
 			});

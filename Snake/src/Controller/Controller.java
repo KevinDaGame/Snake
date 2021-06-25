@@ -5,6 +5,7 @@ import Model.Game;
 import Runnables.GameRunnable;
 import View.DashBoard;
 import View.DrawPane;
+import View.GameOverScene;
 import View.GameScene;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -15,12 +16,13 @@ public class Controller extends Application {
 	private DrawPane drawPane;
 	private GameRunnable gameRunnable;
 	private DashBoard dashBoard;
-	
+	private Stage stage;
 	public static void main(String[] args) {
 		launch(args);
 	}
 	@Override
 	public void start(Stage stage) throws Exception {
+		this.stage = stage;
 		game = new Game();
 		drawPane = new DrawPane(game);
 		dashBoard = new DashBoard(this);
@@ -37,6 +39,7 @@ public class Controller extends Application {
 	public void exit() {
 		Platform.exit();
 	}
+	
 	public void play() {
 		getGame().startTime();
 		gameRunnable = new GameRunnable(this);
@@ -45,10 +48,22 @@ public class Controller extends Application {
 		thread.start();
 		
 	}
+	
+	/**
+	 * called when pause button is clicked
+	 */
 	public void pause() {
-		gameRunnable.stop();
-		
+		gameRunnable.stop();	
 	}
+	
+	/**
+	 * called when snake dies
+	 */
+	public void endGame() {
+		stage.setScene(new GameOverScene(game.getTimer(), stage.getScene().getWidth(), stage.getScene().getHeight()));
+		gameRunnable.stop();
+	}
+	
 	public Game getGame() {
 		return game;
 	}

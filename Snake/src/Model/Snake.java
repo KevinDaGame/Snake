@@ -99,6 +99,10 @@ public class Snake {
 	public void addPart() {
 		BodyPart lastPart = bodyParts.get(bodyParts.size() - 1);
 		bodyParts.add(new BodyPart(lastPart.getX(), lastPart.getY(), lastPart.getDirection()));
+	}
+
+	public void setBodyParts(ArrayList<BodyPart> newSnake) {
+		bodyParts = newSnake;
 		
 	}
 }

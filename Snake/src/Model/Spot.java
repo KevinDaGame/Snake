@@ -14,7 +14,7 @@ public class Spot {
 		return x;
 	}
 	
-	public int gety() {
+	public int getY() {
 		return y;
 	}
 	
@@ -30,5 +30,9 @@ public class Spot {
 		default:
 			return "";
 		}
+	}
+	
+	public Marker getType() {
+		return type;
 	}
 }

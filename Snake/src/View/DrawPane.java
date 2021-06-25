@@ -37,7 +37,7 @@ public class DrawPane extends Pane {
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		for(Spot spot: spots) {
 			Image image = new Image(this.getClass().getResourceAsStream("/" + spot.getImg() + ".png"), 40, 40, true, false);
-			gc.drawImage(image, spot.getX() * 40, spot.gety() * 40);
+			gc.drawImage(image, spot.getX() * 40, spot.getY() * 40);
 		}
 	}
 	
