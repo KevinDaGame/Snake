@@ -45,13 +45,13 @@ public class DrawPane extends Pane {
 		Snake snake = game.getSnake();
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		for(BodyPart bodyPart: snake.getBodyParts()) {
-			if(bodyPart.getX() == snake.getX() && bodyPart.gety() == snake.gety()) {
+			if(bodyPart.getX() == snake.getX() && bodyPart.getY() == snake.getY()) {
 				gc.setFill(Color.RED);
 			}
 			else {
 				gc.setFill(Color.ORANGE);
 			}
-			gc.fillOval(bodyPart.getX() * 40, bodyPart.gety() * 40, 40, 40);
+			gc.fillOval(bodyPart.getX() * 40, bodyPart.getY() * 40, 40, 40);
 		}
 	}
 
