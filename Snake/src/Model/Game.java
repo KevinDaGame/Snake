@@ -1,31 +1,67 @@
 package Model;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
-
-import Controller.Controller;
 
 public class Game {
 	private ArrayList<Spot> spots;
 	private Snake snake;
-	private int level;
+	private int difficulty;
 	private long lastCheckTime;
 	private int timeRunning;
-
+	private final int StartSpotCount = 5;
+	private int timeToWin;
 	public Game() {
-		level = 1;
+		initGame();
+	}
+
+	public Game(File file) {
+		
+	}
+	
+	
+	public void initGame() {
+		difficulty = 1;
 		lastCheckTime = System.currentTimeMillis();
 		timeRunning = 0;
 		snake = new Snake(6, 4);
 		spots = new ArrayList<>();
-		spots.add(new Spot(Marker.BEAR, 10, 6));
-		spots.add(new Spot(Marker.FIRE, 10, 7));
-		spots.add(new Spot(Marker.MOUSE, 0, 2));
+		generateStartSpots();
+	}
+	
+	private void generateStartSpots() {
+		for (int i = 0; i < StartSpotCount; i++) {
+			generateSpot();
+		}
+
 	}
 
-	public void levelUp() {
-		if (level < 12) {
-			level++;
+	public void generateSpot() {
+		Random random = new Random();
+		boolean found = false;
+		while (!found) {
+			int x = random.nextInt(19);
+			int y = random.nextInt(15);
+			if (isClear(x, y)) {
+				int type = random.nextInt(3);
+				if (type == 0) {
+					spots.add(new Spot(Marker.BEAR, x, y));
+				} else if (type == 1) {
+					spots.add(new Spot(Marker.FIRE, x, y));
+				} else if (type == 2) {
+					spots.add(new Spot(Marker.MOUSE, x, y));
+				}
+				found = true;
+			}
+		}
+
+	}
+
+	public void difficultyUp() {
+		if (difficulty < 12) {
+			difficulty++;
 		}
 	}
 
@@ -37,8 +73,8 @@ public class Game {
 		return snake;
 	}
 
-	public int getLevel() {
-		return level;
+	public int getDifficulty() {
+		return difficulty;
 	}
 
 	public void updateTime() {
@@ -81,8 +117,10 @@ public class Game {
 		for (Spot spot : spots) {
 			if (spot.getX() == snake.getX() && spot.getY() == snake.getY()) {
 				if (spot.getType() == Marker.FIRE) {
+					spots.remove(spot);
 					return false;
 				} else if (spot.getType() == Marker.BEAR) {
+					spots.remove(spot);
 					int newLength = (int) Math.floor((double) snake.getBodyParts().size() / 2);
 
 					ArrayList<BodyPart> newSnake = new ArrayList<>();
@@ -96,14 +134,49 @@ public class Game {
 					if (snake.getBodyParts().size() < 5) {
 						return false;
 					}
+					return true;
 				} else if (spot.getType() == Marker.MOUSE) {
+					spots.remove(spot);
 					for (int i = 0; i < 5; i++) {
 						snake.addPart();
 					}
+					return true;
 				}
 			}
 		}
+		for (int i = 1; i < snake.getBodyParts().size(); i++) {
+			if (snake.getBodyParts().get(i).getX() == snake.getX()
+					&& snake.getBodyParts().get(i).getY() == snake.getY()) {
+				return false;
+			}
+		}
 
+		return true;
+	}
+
+	/**
+	 * when trying to put a spot on the field, check if it is safe (empty spot &
+	 * snake isn't going to instantly run into it)
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	private boolean isClear(int x, int y) {
+		for (Spot spot : spots) {
+			if (spot.getX() == x && spot.getY() == y) {
+				return false;
+			}
+		}
+
+		if (snake.getX() - 2 < x && snake.getX() + 2 > x && snake.getY() - 2 < y && snake.getY() + 2 > y) {
+			return false;
+		}
+		for (BodyPart part : snake.getBodyParts()) {
+			if (part.getX() == x && part.getY() == y) {
+				return false;
+			}
+		}
 		return true;
 	}
 }

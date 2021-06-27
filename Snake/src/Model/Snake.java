@@ -90,7 +90,9 @@ public class Snake {
 		}
 		for(BodyPart checkPart: bodyParts) {
 			if(x == checkPart.getX() && y == checkPart.getY()) {
-				return false;
+				if(checkPart != getBodyParts().get(0)) {					
+					return false;
+				}
 			}
 		}
 		return true;

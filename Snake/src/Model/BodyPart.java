@@ -1,7 +1,5 @@
 package Model;
 
-import javafx.scene.input.KeyCode;
-
 public class BodyPart {
 	private int x;
 	private int y;

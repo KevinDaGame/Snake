@@ -25,7 +25,7 @@ public class GameRunnable implements Runnable {
 		Random random = new Random();
 		while (running) {
 			try {
-				Thread.sleep(defaultDelay - (controller.getGame().getLevel() * stepDelay));
+				Thread.sleep(defaultDelay - (controller.getGame().getDifficulty() * stepDelay));
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -33,12 +33,16 @@ public class GameRunnable implements Runnable {
 			if(random.nextInt(10) < movesSinceLastAdded) {
 				movesSinceLastAdded = 0;
 				if(controller.getGame().getSnake().getBodyParts().size() % 5 == 0) {
-					controller.getGame().levelUp();
+					controller.getGame().difficultyUp();
 				}
 				controller.getGame().getSnake().addPart();
 			}
 			controller.getGame().getSnake().move();
 			movesSinceLastAdded++;
+			if(random.nextInt(20) < 1) {
+				controller.getGame().generateSpot();
+			}
+			
 			Platform.runLater(new Runnable() {
 
 				@Override

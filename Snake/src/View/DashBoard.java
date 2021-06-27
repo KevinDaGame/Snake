@@ -9,7 +9,6 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.TextAlignment;
 
 public class DashBoard extends HBox {
 
@@ -50,7 +49,7 @@ public class DashBoard extends HBox {
 	}
 	
 	public void update() {
-		speedSlider.setValue(controller.getGame().getLevel());
+		speedSlider.setValue(controller.getGame().getDifficulty());
 		playTimeLabel.setText(controller.getGame().getTimer());
 	
 	}
