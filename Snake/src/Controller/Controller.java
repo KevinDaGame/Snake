@@ -19,6 +19,8 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 
 public class Controller extends Application {
@@ -35,11 +37,16 @@ public class Controller extends Application {
 	@Override
 	public void start(Stage stage) throws Exception {
 		this.stage = stage;
-		ChooseGameModeScene scene = new ChooseGameModeScene(this);
-		stage.setScene(scene);
+		loadMenu();
 		stage.setTitle("PROG4 ASS Snake - Kevin Dolfing");
 		stage.setResizable(false);
 		stage.show();
+	}
+
+	private void loadMenu() {
+		ChooseGameModeScene scene = new ChooseGameModeScene(this);
+		stage.setScene(scene);
+		
 	}
 
 	private void initGameScene() {
@@ -50,7 +57,7 @@ public class Controller extends Application {
 	}
 
 	public void loadFreePlay() {
-		game = new Game();
+		game = new Game(this);
 		initGameScene();
 	}
 
@@ -59,14 +66,29 @@ public class Controller extends Application {
 		File levelDir = new File(getClass().getResource("/Levels").getFile());
 		File[] levels = levelDir.listFiles();
 		int index = random.nextInt(levels.length);
-		game = new Game(levels[index]);
+		game = new Game(this, levels[index]);
+		if(!game.hasFailed()) {
+			initGameScene();			
+		}
+	}
+	
+	public void loadSelectedLevel() {
+		File level;
+		FileChooser chooser = new FileChooser();
+		chooser.setInitialDirectory(new File(getClass().getResource("/Levels").getFile()));
+		chooser.setSelectedExtensionFilter(new ExtensionFilter("Text files", "*.txt"));
+		level = chooser.showOpenDialog(stage);
+		game = new Game(this, level);
+		if(!game.hasFailed()) {
+			initGameScene();			
+		}
 	}
 
-	public void showLoadFileError() {
+	public void showLoadFileError(String errorString) {
 		Alert error = new Alert(AlertType.ERROR);
 		error.setHeaderText("Error loading file");
 		error.setTitle("File error");
-		error.setContentText("This file can't be read. Please check for corruption");
+		error.setContentText("This file can't be read. " + errorString);
 		error.show();
 	}
 

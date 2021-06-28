@@ -30,6 +30,9 @@ public class GameRunnable implements Runnable {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			if(!running) {
+				break;
+			}
 			if(random.nextInt(10) < movesSinceLastAdded) {
 				movesSinceLastAdded = 0;
 				if(controller.getGame().getSnake().getBodyParts().size() % 5 == 0) {

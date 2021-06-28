@@ -23,28 +23,35 @@ public class ChooseGameModeScene extends Scene {
 	public ChooseGameModeScene(Controller controller) {
 		super(new Pane(), 500, 500);
 		VBox rows = new VBox();
-		HBox cols = new HBox();
-		
+		HBox cols1 = new HBox();
+		HBox cols2 = new HBox();
 		Label snake = new Label("Snake");
 		Button freePlayButton = new Button("freeplay");
-		Button playLevelsButton = new Button("play levels");
+		Button playRandomLevelsButton = new Button("play random levels");
+		Button playSelectLevelButton = new Button("select a level");
 		Button levelEditorButton = new Button("level editor");
 		
 		snake.setFont(Font.font(50));
-		freePlayButton.setPrefSize(100, 50);
-		playLevelsButton.setPrefSize(100, 50);
-		levelEditorButton.setPrefSize(100, 50);
+		freePlayButton.setPrefSize(150, 75);
+		playRandomLevelsButton.setPrefSize(150, 75);
+		levelEditorButton.setPrefSize(150, 75);
+		playSelectLevelButton.setPrefSize(150, 75);
 		
 		freePlayButton.setOnAction(e -> controller.loadFreePlay());
+		playRandomLevelsButton.setOnAction(e -> controller.loadLevel());
+		playSelectLevelButton.setOnAction(e -> controller.loadSelectedLevel());
 		
 		freePlayButton.setTooltip(new Tooltip("Play the basic game, without any walls or levels"));
-		cols.getChildren().addAll(playLevelsButton, levelEditorButton);
-		rows.getChildren().addAll(snake, freePlayButton, cols);
+		cols1.getChildren().addAll(playSelectLevelButton, freePlayButton);
+		cols2.getChildren().addAll(playRandomLevelsButton, levelEditorButton);
+		rows.getChildren().addAll(cols1, cols2);
 		
 		rows.setAlignment(Pos.CENTER);
-		cols.setAlignment(Pos.CENTER);
+		cols1.setAlignment(Pos.CENTER);
+		cols2.setAlignment(Pos.CENTER);
 		rows.setSpacing(100);
-		cols.setSpacing(100);
+		cols1.setSpacing(100);
+		cols2.setSpacing(100);
 		
 		rows.setBackground(new Background(new BackgroundFill(Color.CADETBLUE, null, null)));
 		
@@ -52,11 +59,15 @@ public class ChooseGameModeScene extends Scene {
 		Border buttonBorder = new Border(new BorderStroke(Color.rgb(159, 184, 72), BorderStrokeStyle.DOTTED, null, new BorderWidths(2)));
 		
 		freePlayButton.setBackground(buttonBack);
-		playLevelsButton.setBackground(buttonBack);
+		playRandomLevelsButton.setBackground(buttonBack);
+		playSelectLevelButton.setBackground(buttonBack);
 		levelEditorButton.setBackground(buttonBack);
+		
 		freePlayButton.setBorder(buttonBorder);
-		playLevelsButton.setBorder(buttonBorder);
+		playRandomLevelsButton.setBorder(buttonBorder);
+		playSelectLevelButton.setBorder(buttonBorder);
 		levelEditorButton.setBorder(buttonBorder);
+		
 		setRoot(rows);
 	}
 

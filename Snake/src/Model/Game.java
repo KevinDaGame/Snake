@@ -1,9 +1,15 @@
 package Model;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+
+import Controller.Controller;
 
 public class Game {
 	private ArrayList<Spot> spots;
@@ -12,23 +18,108 @@ public class Game {
 	private long lastCheckTime;
 	private int timeRunning;
 	private final int StartSpotCount = 5;
-	private int timeToWin;
-	public Game() {
-		initGame();
-	}
-
-	public Game(File file) {
-		
-	}
+	private long timeToWin;
+	private Controller controller;
+	private boolean failedToLoad;
 	
-	
-	public void initGame() {
+	public Game(Controller controller) {
+		this.controller = controller;
 		difficulty = 1;
 		lastCheckTime = System.currentTimeMillis();
 		timeRunning = 0;
 		snake = new Snake(6, 4);
 		spots = new ArrayList<>();
 		generateStartSpots();
+	}
+
+	public Game(Controller controller, File file) {
+		this.controller = controller;
+		difficulty = 1;
+		lastCheckTime = System.currentTimeMillis();
+		timeRunning = 0;
+		spots = new ArrayList<>();
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(file));
+			String line;
+			String value;
+			while((line = reader.readLine()) != null) {
+				if(line.startsWith("time: ")) {
+					value = line.substring(6);
+					
+					try {						
+						timeToWin = TimeUnit.SECONDS.toMillis(Long.valueOf(value));
+					}
+					catch (NumberFormatException e) {
+						controller.showLoadFileError("At field time, value " + value + " is not a valid input");
+						fail();
+						return;
+					}
+				}
+				else if(line.startsWith("wall: ")) {
+					value = line.substring(6);
+					System.out.println(value);
+					boolean secondNumber = false;
+					String x = "";
+					String y = "";
+					for(int i = 0; i < value.length(); i++) {
+						char c = value.charAt(i);
+						if(c == ',') {
+							secondNumber = true;
+						}
+						else if(Character.isDigit(c)) {
+							if(!secondNumber) {
+								x += c;
+							}
+							else {
+								y += c;
+							}
+						}
+						else if(c == ' ') {
+							
+						}
+						else {
+							controller.showLoadFileError("the input " + c + " is not a valid input");
+							fail();
+							return;
+						}
+					}
+					if(Integer.valueOf(x) < 0 || Integer.valueOf(x) > 18 || Integer.valueOf(y) < 0|| Integer.valueOf(y) > 14) {
+						controller.showLoadFileError("coordinates out of bounds: x = " + x + " and y = " + y );
+						fail();
+						return;
+					}
+					spots.add(new Spot(Marker.WALL, Integer.valueOf(x), Integer.valueOf(y)));
+					System.out.println("x = " + x + " y = " + y);
+				}
+			}
+		} catch (FileNotFoundException e) {
+			controller.showLoadFileError("Could not find file");
+			fail();
+			return;
+		} catch (IOException e) {
+			controller.showLoadFileError("File cannot be read");
+			fail();
+			return;
+		}
+		if(timeToWin == 0) {
+			controller.showLoadFileError("Time to win not found in file");
+			fail();
+			return;
+		}
+		if(snake == null) {
+			snake = new Snake(6, 4);
+		}
+		generateStartSpots();
+		
+		for(BodyPart part: snake.getBodyParts()) {
+			for(Spot spot: spots) {
+				if(part.getX() == spot.getX() && part.getY() == spot.getY()) {
+					controller.showLoadFileError("The snake spawned on top of a wall!");
+					fail();
+					return;
+				}
+			}
+		}
 	}
 	
 	private void generateStartSpots() {
@@ -37,7 +128,15 @@ public class Game {
 		}
 
 	}
-
+	
+	private void fail() {
+		failedToLoad = true;
+	}
+	
+	public boolean hasFailed() {
+		return failedToLoad;
+	}
+	
 	public void generateSpot() {
 		Random random = new Random();
 		boolean found = false;
@@ -116,7 +215,7 @@ public class Game {
 		}
 		for (Spot spot : spots) {
 			if (spot.getX() == snake.getX() && spot.getY() == snake.getY()) {
-				if (spot.getType() == Marker.FIRE) {
+				if (spot.getType() == Marker.FIRE || spot.getType() == Marker.WALL) {
 					spots.remove(spot);
 					return false;
 				} else if (spot.getType() == Marker.BEAR) {

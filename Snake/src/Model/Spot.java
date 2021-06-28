@@ -26,7 +26,8 @@ public class Spot {
 			return "fire";
 		case MOUSE:
 			return "mouse";
-
+		case WALL:
+			return "bricks";
 		default:
 			return "";
 		}
