@@ -16,7 +16,6 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.FileChooser;
-import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 
 public class Controller extends Application {
@@ -152,7 +151,6 @@ public class Controller extends Application {
 
 	public void addWall(int x, int y) {
 		if(x >= 0 && x < 19 && y >=0 && y < 15) {			
-			System.out.println("add");
 			game.addWall(x, y);
 			getDrawPane().draw();
 		}
@@ -160,7 +158,6 @@ public class Controller extends Application {
 
 	public void removeWall(int x, int y) {
 		if(x >= 0 && x < 19 && y >=0 && y < 15) {	
-			System.out.println("remove");
 			game.removeWall(x, y);
 			getDrawPane().draw();			
 		}

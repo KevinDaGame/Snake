@@ -23,17 +23,18 @@ public class Game {
 	private Controller controller;
 	private boolean failedToLoad;
 	private boolean levelEditor;
+
 	public Game(Controller controller, boolean levelEditor) {
 		this.controller = controller;
 		this.levelEditor = levelEditor;
 		snake = new Snake(6, 4);
 		spots = new ArrayList<>();
-		if(!levelEditor) {
+		if (!levelEditor) {
 			difficulty = 1;
 			lastCheckTime = System.currentTimeMillis();
 			timeRunning = 0;
 			generateStartSpots();
-			
+
 		}
 	}
 
@@ -47,54 +48,51 @@ public class Game {
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String line;
 			String value;
-			while((line = reader.readLine()) != null) {
-				if(line.startsWith("time: ")) {
+			while ((line = reader.readLine()) != null) {
+				if (line.startsWith("time: ")) {
 					value = line.substring(6);
-					
-					try {						
-						timeToWin = (int)TimeUnit.SECONDS.toMillis(Long.valueOf(value));
-					}
-					catch (NumberFormatException e) {
+
+					try {
+						timeToWin = (int) TimeUnit.SECONDS.toMillis(Long.valueOf(value));
+					} catch (NumberFormatException e) {
 						controller.showLoadFileError("At field time, value " + value + " is not a valid input");
 						fail();
 						return;
 					}
-				}
-				else if(line.startsWith("wall: ")) {
+				} else if (line.startsWith("wall: ")) {
 					value = line.substring(6);
-					System.out.println(value);
 					boolean secondNumber = false;
 					String x = "";
 					String y = "";
-					for(int i = 0; i < value.length(); i++) {
+					for (int i = 0; i < value.length(); i++) {
 						char c = value.charAt(i);
-						if(c == ',') {
+						if (c == ',') {
 							secondNumber = true;
-						}
-						else if(Character.isDigit(c)) {
-							if(!secondNumber) {
+						} else if (Character.isDigit(c)) {
+							if (!secondNumber) {
 								x += c;
-							}
-							else {
+							} else {
 								y += c;
 							}
-						}
-						else if(c == ' ') {
-							
-						}
-						else {
+						} else if (c == ' ') {
+
+						} else {
 							controller.showLoadFileError("the input " + c + " is not a valid input");
 							fail();
 							return;
 						}
 					}
-					if(Integer.valueOf(x) < 0 || Integer.valueOf(x) > 18 || Integer.valueOf(y) < 0|| Integer.valueOf(y) > 14) {
-						controller.showLoadFileError("coordinates out of bounds: x = " + x + " and y = " + y );
+					if (Integer.valueOf(x) < 0 || Integer.valueOf(x) > 18 || Integer.valueOf(y) < 0
+							|| Integer.valueOf(y) > 14) {
+						controller.showLoadFileError("coordinates out of bounds: x = " + x + " and y = " + y);
 						fail();
 						return;
 					}
 					spots.add(new Spot(Marker.WALL, Integer.valueOf(x), Integer.valueOf(y)));
-					System.out.println("x = " + x + " y = " + y);
+				} else {
+					controller.showLoadFileError("the input " + line + " is not a valid input");
+					fail();
+					return;
 				}
 			}
 			reader.close();
@@ -107,62 +105,67 @@ public class Game {
 			fail();
 			return;
 		}
-		if(timeToWin == 0) {
+		if (timeToWin == 0) {
 			controller.showLoadFileError("Time to win not found in file");
 			fail();
 			return;
 		}
-		if(snake == null) {
+		if (snake == null) {
 			snake = new Snake(6, 4);
 		}
 		generateStartSpots();
-		
-		for(BodyPart part: snake.getBodyParts()) {
-			for(Spot spot: spots) {
-				if(part.getX() == spot.getX() && part.getY() == spot.getY()) {
+
+		for (BodyPart part : snake.getBodyParts()) {
+			for (Spot spot : spots) {
+				if (part.getX() == spot.getX() && part.getY() == spot.getY()) {
 					controller.showLoadFileError("The snake spawned on top of a wall!");
 					fail();
 					return;
 				}
 			}
-			
+
 		}
-		
+
 	}
-	
+
 	private void generateStartSpots() {
 		for (int i = 0; i < StartSpotCount; i++) {
 			generateSpot();
 		}
 
 	}
-	
+
 	public void addWall(int x, int y) {
-		for(Spot spot: spots) {
-			if(spot.getX() == x && spot.getY() == y) {
+		for (Spot spot : spots) {
+			if (spot.getX() == x && spot.getY() == y) {
+				return;
+			}
+		}
+		for (BodyPart part : snake.getBodyParts()) {
+			if (part.getX() == x && part.getY() == y) {
 				return;
 			}
 		}
 		spots.add(new Spot(Marker.WALL, x, y));
 	}
-	
+
 	public void removeWall(int x, int y) {
-		for(Spot spot: spots) {
-			if(spot.getX() == x && spot.getY() == y) {
+		for (Spot spot : spots) {
+			if (spot.getX() == x && spot.getY() == y) {
 				spots.remove(spot);
 				return;
 			}
 		}
 	}
-	
+
 	private void fail() {
 		failedToLoad = true;
 	}
-	
+
 	public boolean hasFailed() {
 		return failedToLoad;
 	}
-	
+
 	public void generateSpot() {
 		Random random = new Random();
 		boolean found = false;
@@ -235,12 +238,11 @@ public class Game {
 	}
 
 	public boolean checkEvents() {
-		System.out.println("time to win: " + timeToWin + "\ntime running: " + timeRunning);
-		if(timeToWin <= timeRunning && timeToWin != 0) {
-			System.out.println("you win!");
+		if (timeToWin <= timeRunning && timeToWin != 0) {
+
 			controller.endGame();
 		}
-		
+
 		if (snake.getX() > 18 || snake.getX() < 0 || snake.getY() > 14 || snake.getY() < 0) {
 			return false;
 		}
@@ -322,8 +324,8 @@ public class Game {
 		try {
 			FileWriter writer = new FileWriter(level);
 			writer.write("time: " + time + "\n");
-			for(Spot spot: spots) {
-				if(spot.getType() == Marker.WALL) {
+			for (Spot spot : spots) {
+				if (spot.getType() == Marker.WALL) {
 					writer.write("wall: " + spot.getX() + ", " + spot.getY() + "\n");
 				}
 			}
@@ -332,6 +334,6 @@ public class Game {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
 }
