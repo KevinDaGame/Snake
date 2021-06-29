@@ -35,7 +35,7 @@ public class GameRunnable implements Runnable {
 			}
 			if(random.nextInt(10) < movesSinceLastAdded) {
 				movesSinceLastAdded = 0;
-				if(controller.getGame().getSnake().getBodyParts().size() % 5 == 0) {
+				if(controller.getGame().getSnake().getBodyParts().size() % addsToLevelUp == 0) {
 					controller.getGame().difficultyUp();
 				}
 				controller.getGame().getSnake().addPart();

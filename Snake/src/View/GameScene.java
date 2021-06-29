@@ -6,11 +6,12 @@ import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 
 public class GameScene extends Scene {
 
-	public GameScene(Controller controller, DrawPane drawPane, DashBoard dashBoard) {
+	public GameScene(Controller controller, DrawPane drawPane, HBox dashBoard) {
 		super(new Pane());
 		BorderPane root = new BorderPane();
 		setRoot(root);

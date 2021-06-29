@@ -1,18 +1,14 @@
 package Controller;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FilenameFilter;
-import java.net.URISyntaxException;
 import java.util.Random;
-
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import Model.Game;
 import Runnables.GameRunnable;
 import View.ChooseGameModeScene;
 import View.DashBoard;
 import View.DrawPane;
+import View.EditorDashBoard;
 import View.GameOverScene;
 import View.GameScene;
 import javafx.application.Application;
@@ -28,6 +24,7 @@ public class Controller extends Application {
 	private DrawPane drawPane;
 	private GameRunnable gameRunnable;
 	private DashBoard dashBoard;
+	private EditorDashBoard editorDashBoard;
 	private Stage stage;
 
 	public static void main(String[] args) {
@@ -43,22 +40,34 @@ public class Controller extends Application {
 		stage.show();
 	}
 
-	private void loadMenu() {
+	public void loadMenu() {
 		ChooseGameModeScene scene = new ChooseGameModeScene(this);
 		stage.setScene(scene);
-		
+
 	}
 
-	private void initGameScene() {
-		drawPane = new DrawPane(game);
-		dashBoard = new DashBoard(this);
-		GameScene scene = new GameScene(this, drawPane, dashBoard);
+	private void initGameScene(boolean editor) {
+		GameScene scene;
+		if (editor) {
+			drawPane = new DrawPane(game, this, true);
+			editorDashBoard = new EditorDashBoard(this);
+			scene = new GameScene(this, drawPane, editorDashBoard);
+		} else {
+			drawPane = new DrawPane(game, this, false);
+			dashBoard = new DashBoard(this);
+			scene = new GameScene(this, drawPane, dashBoard);
+		}
 		stage.setScene(scene);
 	}
 
 	public void loadFreePlay() {
-		game = new Game(this);
-		initGameScene();
+		game = new Game(this, false);
+		initGameScene(false);
+	}
+
+	public void loadLevelEditor() {
+		game = new Game(this, true);
+		initGameScene(true);
 	}
 
 	public void loadLevel() {
@@ -67,20 +76,23 @@ public class Controller extends Application {
 		File[] levels = levelDir.listFiles();
 		int index = random.nextInt(levels.length);
 		game = new Game(this, levels[index]);
-		if(!game.hasFailed()) {
-			initGameScene();			
+		if (!game.hasFailed()) {
+			initGameScene(false);
 		}
 	}
-	
+
 	public void loadSelectedLevel() {
 		File level;
 		FileChooser chooser = new FileChooser();
 		chooser.setInitialDirectory(new File(getClass().getResource("/Levels").getFile()));
-		chooser.setSelectedExtensionFilter(new ExtensionFilter("Text files", "*.txt"));
+		FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Text files", "*.txt");
+		chooser.getExtensionFilters().add(filter);
 		level = chooser.showOpenDialog(stage);
-		game = new Game(this, level);
-		if(!game.hasFailed()) {
-			initGameScene();			
+		if (level != null) {
+			game = new Game(this, level);
+			if (!game.hasFailed()) {
+				initGameScene(false);
+			}
 		}
 	}
 
@@ -116,7 +128,13 @@ public class Controller extends Application {
 	 * called when snake dies
 	 */
 	public void endGame() {
-		stage.setScene(new GameOverScene(game.getTimer(), stage.getScene().getWidth(), stage.getScene().getHeight()));
+		if (game.getTimeToWin() > 0 && game.getTimeRunning() >= game.getTimeToWin()) {
+			stage.setScene(new GameOverScene(game.getTimer(), stage.getScene().getWidth(), stage.getScene().getHeight(),
+					true, this));
+		} else {
+			stage.setScene(new GameOverScene(game.getTimer(), stage.getScene().getWidth(), stage.getScene().getHeight(),
+					false, this));
+		}
 		gameRunnable.stop();
 	}
 
@@ -130,6 +148,35 @@ public class Controller extends Application {
 
 	public DashBoard getDashBoard() {
 		return dashBoard;
+	}
+
+	public void addWall(int x, int y) {
+		if(x >= 0 && x < 19 && y >=0 && y < 15) {			
+			System.out.println("add");
+			game.addWall(x, y);
+			getDrawPane().draw();
+		}
+	}
+
+	public void removeWall(int x, int y) {
+		if(x >= 0 && x < 19 && y >=0 && y < 15) {	
+			System.out.println("remove");
+			game.removeWall(x, y);
+			getDrawPane().draw();			
+		}
+	}
+
+	public void saveLevel(int time) {
+		File level;
+		FileChooser chooser = new FileChooser();
+		chooser.setInitialDirectory(new File(getClass().getResource("/Levels").getFile()));
+		FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Text files", "*.txt");
+		chooser.getExtensionFilters().add(filter);
+		level = chooser.showSaveDialog(stage);
+		if(level != null) {
+			game.saveLevel(level, time);
+			loadMenu();
+		}
 	}
 
 }

@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
@@ -18,18 +19,22 @@ public class Game {
 	private long lastCheckTime;
 	private int timeRunning;
 	private final int StartSpotCount = 5;
-	private long timeToWin;
+	private int timeToWin;
 	private Controller controller;
 	private boolean failedToLoad;
-	
-	public Game(Controller controller) {
+	private boolean levelEditor;
+	public Game(Controller controller, boolean levelEditor) {
 		this.controller = controller;
-		difficulty = 1;
-		lastCheckTime = System.currentTimeMillis();
-		timeRunning = 0;
+		this.levelEditor = levelEditor;
 		snake = new Snake(6, 4);
 		spots = new ArrayList<>();
-		generateStartSpots();
+		if(!levelEditor) {
+			difficulty = 1;
+			lastCheckTime = System.currentTimeMillis();
+			timeRunning = 0;
+			generateStartSpots();
+			
+		}
 	}
 
 	public Game(Controller controller, File file) {
@@ -47,7 +52,7 @@ public class Game {
 					value = line.substring(6);
 					
 					try {						
-						timeToWin = TimeUnit.SECONDS.toMillis(Long.valueOf(value));
+						timeToWin = (int)TimeUnit.SECONDS.toMillis(Long.valueOf(value));
 					}
 					catch (NumberFormatException e) {
 						controller.showLoadFileError("At field time, value " + value + " is not a valid input");
@@ -92,6 +97,7 @@ public class Game {
 					System.out.println("x = " + x + " y = " + y);
 				}
 			}
+			reader.close();
 		} catch (FileNotFoundException e) {
 			controller.showLoadFileError("Could not find file");
 			fail();
@@ -119,7 +125,9 @@ public class Game {
 					return;
 				}
 			}
+			
 		}
+		
 	}
 	
 	private void generateStartSpots() {
@@ -127,6 +135,24 @@ public class Game {
 			generateSpot();
 		}
 
+	}
+	
+	public void addWall(int x, int y) {
+		for(Spot spot: spots) {
+			if(spot.getX() == x && spot.getY() == y) {
+				return;
+			}
+		}
+		spots.add(new Spot(Marker.WALL, x, y));
+	}
+	
+	public void removeWall(int x, int y) {
+		for(Spot spot: spots) {
+			if(spot.getX() == x && spot.getY() == y) {
+				spots.remove(spot);
+				return;
+			}
+		}
 	}
 	
 	private void fail() {
@@ -209,8 +235,13 @@ public class Game {
 	}
 
 	public boolean checkEvents() {
+		System.out.println("time to win: " + timeToWin + "\ntime running: " + timeRunning);
+		if(timeToWin <= timeRunning && timeToWin != 0) {
+			System.out.println("you win!");
+			controller.endGame();
+		}
+		
 		if (snake.getX() > 18 || snake.getX() < 0 || snake.getY() > 14 || snake.getY() < 0) {
-
 			return false;
 		}
 		for (Spot spot : spots) {
@@ -277,5 +308,30 @@ public class Game {
 			}
 		}
 		return true;
+	}
+
+	public int getTimeRunning() {
+		return timeRunning;
+	}
+
+	public int getTimeToWin() {
+		return timeToWin;
+	}
+
+	public void saveLevel(File level, int time) {
+		try {
+			FileWriter writer = new FileWriter(level);
+			writer.write("time: " + time + "\n");
+			for(Spot spot: spots) {
+				if(spot.getType() == Marker.WALL) {
+					writer.write("wall: " + spot.getX() + ", " + spot.getY() + "\n");
+				}
+			}
+			writer.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 }

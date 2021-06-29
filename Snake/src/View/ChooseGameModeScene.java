@@ -40,6 +40,7 @@ public class ChooseGameModeScene extends Scene {
 		freePlayButton.setOnAction(e -> controller.loadFreePlay());
 		playRandomLevelsButton.setOnAction(e -> controller.loadLevel());
 		playSelectLevelButton.setOnAction(e -> controller.loadSelectedLevel());
+		levelEditorButton.setOnAction(e -> controller.loadLevelEditor());
 		
 		freePlayButton.setTooltip(new Tooltip("Play the basic game, without any walls or levels"));
 		cols1.getChildren().addAll(playSelectLevelButton, freePlayButton);

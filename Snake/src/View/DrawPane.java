@@ -2,6 +2,7 @@ package View;
 
 import java.util.ArrayList;
 
+import Controller.Controller;
 import Model.BodyPart;
 import Model.Game;
 import Model.Snake;
@@ -9,14 +10,25 @@ import Model.Spot;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
 public class DrawPane extends Pane {
 	private Canvas canvas;
 	private Game game;
-	public DrawPane(Game game) {
+	private boolean editor;
+	private Controller controller;
+	
+	public DrawPane(Game game, Controller controller, boolean editor) {
+		this.editor = editor;
+		this.controller = controller;
 		canvas = new Canvas(760, 600);
+		if(editor) {
+			canvas.setOnMouseDragged(e -> handleWall(e));
+			canvas.setOnMouseClicked(e -> handleWall(e));
+		}
 		this.game = game;
 		draw();
 //		Image image = new Image(this.getClass().getResourceAsStream("/bear.png"), 40, 40, true, false);
@@ -24,6 +36,18 @@ public class DrawPane extends Pane {
 		getChildren().add(canvas);
 	}
 	
+	private void handleWall(MouseEvent e) {
+		int realX = (int) (e.getX() / 40);
+		int realY = (int) (e.getY() / 40);
+		if(e.getButton() == MouseButton.PRIMARY) {
+			controller.addWall(realX, realY);
+		}
+		else if(e.getButton() == MouseButton.SECONDARY) {
+			controller.removeWall(realX, realY);
+		}
+	}
+
+
 	public void draw() {
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
